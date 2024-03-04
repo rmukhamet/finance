@@ -9,11 +9,11 @@ import (
 var (
 	healthy int32
 	ready   int32
-	//watcher *fscache.Watcher
+	// watcher *fscache.Watcher
 )
 
 type Logger interface {
-	Info(string)
+	Info(...interface{})
 }
 
 func NewServer(
@@ -26,7 +26,7 @@ func NewServer(
 	addRoutes(
 		mux,
 		logger,
-		//config,
+		// config,
 		// commentStore,
 		// anotherStore,
 	)

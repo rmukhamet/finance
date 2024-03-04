@@ -11,7 +11,9 @@ import (
 	"os/signal"
 	"sync"
 
+	"github.com/rmukhamet/finance/config"
 	"github.com/rmukhamet/finance/rest"
+	"go.uber.org/zap"
 )
 
 func run(ctx context.Context, w io.Writer, args []string) error {
@@ -20,10 +22,24 @@ func run(ctx context.Context, w io.Writer, args []string) error {
 	// create connections
 	// create controllers
 	// init app logger
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+	sugar := logger.Sugar()
+	// logger := zap.NewExample()
+
+	// defer logger.Sync()
+
+	// stdLogger := zap.NewStdLog(logger)
+	// stdLogger.Info("sdfsdfds")
+
+	cfg := config.Config{}
 
 	srv := rest.NewServer(
-		logger,
-		config,
+		sugar,
+		&cfg,
 		// tenantsStore,
 		// slackLinkStore,
 		// msteamsLinkStore,

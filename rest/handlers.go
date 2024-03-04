@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"sync"
@@ -13,11 +14,11 @@ import (
 
 // handleSomething обрабатывает веб-запрос
 func handleSomething() http.Handler {
-	//thing := prepareThing()
+	// thing := prepareThing()
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// используем нечто для обработки запроса
-			//log.Info(r.Context(), "msg", "handleSomething")
+			// log.Info(r.Context(), "msg", "handleSomething")
 		},
 	)
 }
@@ -57,17 +58,28 @@ func HandleFileReceiver() http.HandlerFunc {
 		func(w http.ResponseWriter, r *http.Request) {
 			err := r.ParseMultipartForm(300 << 20) // limit your max input length! 300MB TODO: config
 			if err != nil {
-				w.WriteHeader(http.StatusRequestEntityTooLarge)
+				log.Print(err)
+				//w.WriteHeader(http.StatusRequestEntityTooLarge)
+				//return
 			}
 
+			err = r.ParseForm()
+			if err != nil {
+				log.Print(err)
+				//	w.WriteHeader(http.StatusRequestEntityTooLarge)
+				//	return
+			}
 			var buf bytes.Buffer
 			// in your case file would be fileupload
 			file, header, err := r.FormFile("file")
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
+
+				return
 			}
 
 			defer file.Close()
+
 			fmt.Printf("Uploaded File: %+v\n", header.Filename)
 			fmt.Printf("File Size: %+v\n", header.Size)
 			fmt.Printf("MIME Header: %+v\n", header.Header)
@@ -80,13 +92,13 @@ func HandleFileReceiver() http.HandlerFunc {
 			// I normally have a struct defined and unmarshal into a struct, but this will
 			// work as an example
 			contents := buf.String()
-			fmt.Println(contents)
+			//fmt.Println(contents)
 			// I reset the buffer in case I want to use it again
 			// reduces memory allocations in more intense projects
+			_ = contents
 			buf.Reset()
 			// do something else
 			// etc write header
-			return
 		},
 	)
 }
